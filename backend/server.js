@@ -12,7 +12,7 @@ connectDB();
 const app = express();
 
 // Allow requests from frontend (update FRONTEND_URL in .env)
-const FRONTEND = process.env.FRONTEND_URL || 'https://nameversebyrrgritik.onrender.com';
+const FRONTEND = process.env.FRONTEND_URL;
 app.use(cors({ origin: FRONTEND }));
 app.use(express.json());
 
