@@ -14,7 +14,7 @@ Return JSON with fields: meaning (1-2 sentences), origin (single word or short p
 Do not return extra commentary—only valid JSON.`;
 
     const completion = await groq.chat.completions.create({
-      model: 'llama3-8b-8192', // or try 'mixtral-8x7b-32768' for more powerful
+      model: 'llama-3.1-8b-instant', // or try 'mixtral-8x7b-32768' for more powerful
       messages: [{ role: 'user', content: prompt }],
       temperature: 0.7,
       max_tokens: 250
