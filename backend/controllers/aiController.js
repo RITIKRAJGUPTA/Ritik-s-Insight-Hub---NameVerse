@@ -4,8 +4,16 @@ const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
 const getNameMeaning = async (req, res) => {
   try {
     const { name } = req.body;
+
+    // ✅ Basic validation: check if name exists and is a string
     if (!name || typeof name !== 'string' || name.trim().length === 0) {
       return res.status(400).json({ error: 'Name is required' });
+    }
+
+    // ✅ Allow only alphabetic characters (no numbers, spaces, or special chars)
+    const alphaRegex = /^[A-Za-z]+$/;
+    if (!alphaRegex.test(name.trim())) {
+      return res.status(400).json({ error: 'Provide a proper name (only letters allowed)' });
     }
 
     const prompt = `Provide a concise, friendly explanation for the following given name:
@@ -14,7 +22,7 @@ Return JSON with fields: meaning (1-2 sentences), origin (single word or short p
 Do not return extra commentary—only valid JSON.`;
 
     const completion = await groq.chat.completions.create({
-      model: 'llama-3.1-8b-instant', // or try 'mixtral-8x7b-32768' for more powerful
+      model: 'llama-3.1-8b-instant',
       messages: [{ role: 'user', content: prompt }],
       temperature: 0.7,
       max_tokens: 250
