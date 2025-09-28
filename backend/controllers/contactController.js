@@ -1,14 +1,9 @@
 const Contact = require("../models/Contact");
-const nodemailer = require("nodemailer");
+const { Resend } = require("resend");
+require("dotenv").config();
 
-// Setup Nodemailer transporter
-const transporter = nodemailer.createTransport({
-  service: "gmail", // or use 'smtp' config for other providers
-  auth: {
-    user: process.env.MAIL_USER, // your email
-    pass: process.env.MAIL_PASS, // app password (not your real Gmail password)
-  },
-});
+// Initialize Resend
+const resend = new Resend(process.env.RESEND_API_KEY);
 
 /**
  * submitContact
@@ -26,10 +21,10 @@ const submitContact = async (req, res) => {
     const contact = new Contact({ name, email, phone, message });
     await contact.save();
 
-    // Send email notification
-    const mailOptions = {
-      from: process.env.MAIL_USER,
-      to: process.env.ADMIN_EMAIL, // your email address
+    // Send email notification via Resend
+    await resend.emails.send({
+      from: process.env.FROM_EMAIL,       // verified email or onboarding@resend.dev
+      to: process.env.ADMIN_EMAIL,        // your Gmail or recipient email
       subject: `New Contact Submission from ${name}`,
       text: `
 You have a new contact form submission:
@@ -41,14 +36,6 @@ Message: ${message}
 
 Submitted at: ${new Date().toLocaleString()}
       `,
-    };
-
-    transporter.sendMail(mailOptions, (err, info) => {
-      if (err) {
-        console.error("Error sending email:", err);
-      } else {
-        console.log("Email sent:", info.response);
-      }
     });
 
     return res.status(201).json({ success: true, message: "Contact saved" });
